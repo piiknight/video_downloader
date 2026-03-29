@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Xcode
+*.xcuserdata
+build/
+DerivedData/
+*.xcworkspace
+
+# OS
+.DS_Store
