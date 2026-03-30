@@ -1,6 +1,7 @@
 import os
 
 os.environ["API_KEY"] = "test-key"
+os.environ["COBALT_URL"] = "http://localhost:9000"
 
 import pytest
 from httpx import AsyncClient, ASGITransport
@@ -41,8 +42,23 @@ async def test_extract_http_rejected(headers):
     assert resp.status_code == 400
 
 
+async def test_extract_success(headers):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.post(
+            "/extract",
+            json={"url": "https://www.tiktok.com/@user/video/123"},
+            headers=headers,
+        )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "id" in data
+    assert "formats" in data
+    assert len(data["formats"]) > 0
+
+
 async def test_download_not_found(headers):
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        resp = await client.get("/download/nonexistent?format=720p", headers=headers)
+        resp = await client.get("/download/nonexistent?format=720", headers=headers)
     assert resp.status_code == 404
